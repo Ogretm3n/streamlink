@@ -1281,7 +1281,11 @@ def build_parser():
             Enable the `-start_at_zero` FFmpeg option when using --ffmpeg-copyts.
         """,
     )
-
+    transport_ffmpeg.add_argument(
+        "--key",
+        metavar="HEXKEY",
+        action="append",
+    )
     http = parser.add_argument_group("HTTP options")
     http.add_argument(
         "--http-proxy",
@@ -1528,6 +1532,12 @@ _ARGUMENT_TO_SESSIONOPTION: list[tuple[str, str, Callable[[Any], Any] | None]] =
 
 
 def setup_session_options(session: Streamlink, args: argparse.Namespace):
+    # decryption keys
+    if hasattr(args, 'key') and args.key:
+        session.set_option("decryption_key", args.key[0])
+        if len(args.key) > 1:
+            session.set_option("decryption_key_2", args.key[1])
+    
     for arg, option, mapper in _ARGUMENT_TO_SESSIONOPTION:
         value = getattr(args, arg)
         if value is not None:

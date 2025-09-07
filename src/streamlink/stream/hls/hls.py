@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+import os
 import struct
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
@@ -258,11 +259,21 @@ class HLSStreamWriter(SegmentedStreamWriter[HLSSegment, Response]):
                 log.info("Filtering out segments and pausing stream output")
                 self.reader.pause()
 
+    
+
     def _write(self, segment: HLSSegment, result: Response, is_map: bool):
+        # DRM protection check
+        key = segment.map.key if is_map and segment.map else segment.key
+        
+        if key and key.method in ["SAMPLE-AES-CTR", "SAMPLE_AES"] and not self.session.options.get("decryption_key"):
+            print()
+            print("Stream is encrypted and requires decryption keys\n\nUsage: --key <hex> or --key <hex> --key <hex> for multiple keys")
+            os._exit(1)
+        
         # TODO: Rewrite HLSSegment, HLSStreamWriter and HLSStreamWorker based on independent initialization section segments,
         #       similar to the DASH implementation
-        key = segment.map.key if is_map and segment.map else segment.key
-        if key and key.method != "NONE":
+        
+        if key and key.method != "NONE" and not self.session.options.get("decryption_key"):
             try:
                 decryptor = self.create_decryptor(key, segment.num)
             except (StreamError, ValueError) as err:

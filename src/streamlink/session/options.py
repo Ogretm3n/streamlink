@@ -205,6 +205,14 @@ class StreamlinkOptions(Options):
           - ``int``
           - ``3``
           - Max number of DASH manifest reload attempts before giving up
+        * - decryption_key
+          - ``str | None``
+          - ``None``
+          - Specify the decryption stream key
+        * - decryption_key_2
+          - ``str | None``
+          - ``None``
+          - Specify the decryption stream key for track 2
         * - ffmpeg-ffmpeg
           - ``str | None``
           - ``None``
@@ -303,6 +311,8 @@ class StreamlinkOptions(Options):
             "hls-audio-select": [],
             "dash-manifest-reload-attempts": 3,
             "ffmpeg-ffmpeg": None,
+            "decryption_key": None,
+            "decryption_key_2": None,
             "ffmpeg-no-validation": False,
             "ffmpeg-verbose": False,
             "ffmpeg-verbose-path": None,
